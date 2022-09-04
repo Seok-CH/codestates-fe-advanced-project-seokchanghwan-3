@@ -1,1 +1,3 @@
-export const calculate = () => {};
+export const calculate = (expression: string) => {
+  return "";
+};
