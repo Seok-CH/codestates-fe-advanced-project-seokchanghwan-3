@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import "./App.css";
+
 import { pad } from "./pad";
 import { calculate } from "./calculate";
-import { ReactComponent as Lightmode } from "./assets/lightmode.svg";
-import { ReactComponent as Darkmode } from "./assets/darkmode.svg";
+import { ReactComponent as Lightmode } from "./assets/images/lightmode.svg";
+import { ReactComponent as Darkmode } from "./assets/images/darkmode.svg";
 
 import { PadItemType } from "./pad";
 
@@ -131,7 +132,7 @@ function App() {
     <div className="App">
       <header className="header">
         <div className="header__logo">🤔 Calculator</div>
-        <button className="header__themeBtn" onClick={toggleTheme}>
+        <button className="header__theme" onClick={toggleTheme}>
           {theme === "dark" ? <Darkmode /> : <Lightmode />}
         </button>
       </header>
