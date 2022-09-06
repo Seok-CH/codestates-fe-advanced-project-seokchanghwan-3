@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 import Calculator from "./components/Calculator";
+import History from "./components/History";
 
-import { ReactComponent as Lightmode } from "./assets/images/lightmode.svg";
-import { ReactComponent as Darkmode } from "./assets/images/darkmode.svg";
+import { ReactComponent as HistoryIcon } from "./assets/images/history.svg";
+import { ReactComponent as LightmodeIcon } from "./assets/images/lightmode.svg";
+import { ReactComponent as DarkmodeIcon } from "./assets/images/darkmode.svg";
 
 function App() {
   const [theme, setTheme] = useState("");
+  const [isHistoryOn, setIsHistoryOn] = useState(false);
 
   const initializeTheme = (darkSchemeMediaQueryList: MediaQueryList) => {
     const mediaMode = darkSchemeMediaQueryList.matches ? "dark" : "light";
@@ -31,10 +34,16 @@ function App() {
     <div className="App">
       <header className="header">
         <div className="header__logo">🤔 Calculator</div>
-        <button className="header__theme" onClick={toggleTheme}>
-          {theme === "dark" ? <Darkmode /> : <Lightmode />}
-        </button>
+        <div className="header__tool">
+          <button className="header__history" onClick={() => setIsHistoryOn(!isHistoryOn)}>
+            <HistoryIcon />
+          </button>
+          <button className="header__theme" onClick={toggleTheme}>
+            {theme === "dark" ? <DarkmodeIcon /> : <LightmodeIcon />}
+          </button>
+        </div>
       </header>
+      {isHistoryOn && <History />}
       <Calculator />
     </div>
   );
