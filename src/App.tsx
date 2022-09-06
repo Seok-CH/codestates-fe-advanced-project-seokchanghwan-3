@@ -8,14 +8,17 @@ import { ReactComponent as Darkmode } from "./assets/images/darkmode.svg";
 
 function App() {
   const [theme, setTheme] = useState("");
-  // TODO : localStorage에 저장된 다크모드 값을 가져와서 덮어쓰기
+
   const initializeTheme = (darkSchemeMediaQueryList: MediaQueryList) => {
-    const theme = darkSchemeMediaQueryList.matches ? "dark" : "light";
+    const mediaMode = darkSchemeMediaQueryList.matches ? "dark" : "light";
+    const theme = localStorage.getItem("darkmode") || mediaMode;
     document.body.dataset.theme = theme;
+    setTheme(theme);
   };
 
   const toggleTheme = () => {
     const newTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
+    localStorage.setItem("darkmode", newTheme);
     document.body.dataset.theme = newTheme;
     setTheme(newTheme);
   };
