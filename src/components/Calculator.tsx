@@ -121,12 +121,11 @@ function Calculator() {
   };
 
   const formatExpression = (raw: string) => {
-    return raw
-      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-      .replace(/\+/g, " + ")
-      .replace(/\*/g, " * ")
-      .replace(/\//g, " / ")
-      .replace(/-/g, " - ");
+    return raw.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    // .replace(/\+/g, " + ")
+    // .replace(/\*/g, " * ")
+    // .replace(/\//g, " / ")
+    // .replace(/-/g, " - ");
   };
 
   const changeFontSize = () => {

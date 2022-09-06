@@ -17,10 +17,10 @@ export const calculator = (calStack: string[]) => {
 };
 
 const calculate = (num1: number, num2: number, operator: string) => {
-  if (operator === "+") return num1 + num2;
-  if (operator === "-") return num1 - num2;
-  if (operator === "*") return num1 * num2;
-  if (operator === "/") return num1 / num2;
+  if (operator === " + ") return num1 + num2;
+  if (operator === " - ") return num1 - num2;
+  if (operator === " * ") return num1 * num2;
+  if (operator === " / ") return num1 / num2;
 };
 
 const convertToPostfix = (calStack: string[]) => {
@@ -32,21 +32,21 @@ const convertToPostfix = (calStack: string[]) => {
       postfixStack.push(Number(el));
     } else {
       if (el === "(") operatorBracketStack.push("(");
-      if (el === "*" || el === "/") {
+      if (el === " * " || el === " / ") {
         while (
-          operatorBracketStack[operatorBracketStack.length - 1] === "*" ||
-          operatorBracketStack[operatorBracketStack.length - 1] === "/"
+          operatorBracketStack[operatorBracketStack.length - 1] === " * " ||
+          operatorBracketStack[operatorBracketStack.length - 1] === " / "
         ) {
           postfixStack.push(operatorBracketStack.pop());
         }
         operatorBracketStack.push(el);
       }
-      if (el === "+" || el === "-") {
+      if (el === " + " || el === " - ") {
         while (
-          operatorBracketStack[operatorBracketStack.length - 1] === "*" ||
-          operatorBracketStack[operatorBracketStack.length - 1] === "/" ||
-          operatorBracketStack[operatorBracketStack.length - 1] === "+" ||
-          operatorBracketStack[operatorBracketStack.length - 1] === "-"
+          operatorBracketStack[operatorBracketStack.length - 1] === " * " ||
+          operatorBracketStack[operatorBracketStack.length - 1] === " / " ||
+          operatorBracketStack[operatorBracketStack.length - 1] === " + " ||
+          operatorBracketStack[operatorBracketStack.length - 1] === " - "
         ) {
           postfixStack.push(operatorBracketStack.pop());
         }
