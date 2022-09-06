@@ -1,1 +1,79 @@
+.App {
+  width: 360px;
+  margin: auto;
+  background-color: var(--body-bg-color);
+  box-shadow: 1px 1px 5px 5px #efefef;
+}
 
+.header {
+  display: flex;
+  height: 70px;
+  align-items: center;
+  padding: 10px;
+  justify-content: space-between;
+}
+
+.header__logo {
+  height: 50px;
+  font-size: 18px;
+  line-height: 44px;
+  color: var(--body-font-color);
+}
+
+.header__theme {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.header__theme:hover {
+  background-color: var(--btn-active-color);
+}
+
+.calc {
+  height: 650px;
+  padding: 15px;
+}
+
+.calc__display {
+  height: 250px;
+  text-align: end;
+  font-size: 30px;
+  word-break: break-all;
+  color: var(--body-font-color);
+}
+
+.calc__pad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px 12px;
+}
+
+.calc__paditem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  background-color: var(--btn-bg-color);
+  border: 1px solid var(--btn-border-color);
+  height: 60px;
+  font-size: 24px;
+  color: var(--body-font-color);
+  cursor: pointer;
+}
+
+.calc__paditem:active {
+  background-color: var(--btn-active-color);
+}
+
+.calc__paditem:nth-child(1),
+.calc__paditem:nth-child(2),
+.calc__paditem:nth-child(3),
+.calc__paditem:nth-child(4n) {
+  color: var(--primary-color);
+}
+
+.calc__paditem:last-child {
+  color: #ffffff;
+  background-color: var(--primary-color);
+}
