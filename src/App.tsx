@@ -43,7 +43,7 @@ function App() {
           </button>
         </div>
       </header>
-      {isHistoryOn && <History />}
+      <History isHistoryOn={isHistoryOn} />
       <Calculator />
     </div>
   );
