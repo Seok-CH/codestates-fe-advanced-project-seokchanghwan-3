@@ -55,11 +55,11 @@
   margin-bottom: 10px;
   padding: 10px;
   border-radius: 5px;
-  background-color: #fafafa;
+  background-color: var(--display-bg-color);
   text-align: end;
   font-size: 24px;
-  word-break: break-all;
-  color: #aaaaaa;
+  word-break: break-word;
+  color: var(--display-font-color);
 }
 
 .calc__pad {
@@ -99,24 +99,43 @@
 
 .history {
   position: absolute;
-  overflow-y: auto;
   width: 100%;
   height: 600px;
-  background-color: white;
+  background-color: var(--body-bg-color);
 }
 
 .history__header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  height: 50px;
   padding: 10px 20px;
+  border-bottom: 1px solid var(--btn-border-color);
 }
 
 .history__headline {
   font-weight: bold;
+  color: var(--body-font-color);
+}
+
+.history__content {
+  height: 550px;
+  overflow-y: auto;
+  background-color: var(--display-bg-color);
+}
+
+.history__content::-webkit-scrollbar {
+  background-color: var(--display-bg-color);
+  width: 5px;
+}
+
+.history__content::-webkit-scrollbar-thumb {
+  background-color: #aaaaaa;
+  border-radius: 10px;
 }
 
 .history__reset {
-  color: blue;
+  color: var(--btn-interaction-color);
 }
 
 .history__item {
@@ -124,7 +143,7 @@
   flex-direction: column;
   gap: 10px;
   padding: 15px 20px;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--btn-border-color);
 }
 
 .history__expression {
@@ -133,6 +152,6 @@
 }
 
 .history__result {
-  color: black;
+  color: var(--body-font-color);
   font-size: 24px;
 }

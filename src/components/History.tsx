@@ -18,12 +18,14 @@ function History() {
           초기화
         </button>
       </div>
-      {parsed.map((el: HistoryType, idx: number) => (
-        <div className="history__item" key={idx}>
-          <span className="history__expression">{el.expression}</span>
-          <span className="history__result">{el.result}</span>
-        </div>
-      ))}
+      <div className="history__content">
+        {parsed.map((el: HistoryType, idx: number) => (
+          <div className="history__item" key={idx}>
+            <span className="history__expression">{el.expression}</span>
+            <span className="history__result">{el.result}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
