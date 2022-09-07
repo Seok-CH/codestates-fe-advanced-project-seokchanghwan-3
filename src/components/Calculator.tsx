@@ -60,19 +60,29 @@ function Calculator() {
     setTempResult(["0"]);
   };
 
+  const softResetCalc = (el: PadItemType) => {
+    setCalStack([el.command]);
+    setTypeStack([el.type]);
+    setIsClosedBracket(true);
+    setTempResult([el.command]);
+  };
+
   const addNumber = (el: PadItemType) => {
     if (checkNumberOverflow()) return;
-    const currentType = getCurrent(typeStack);
 
+    const currentType = getCurrent(typeStack);
     if (currentType === "number") {
       const newNum = getCurrent(calStack) + el.command;
       setCalStack(removeRecentAndAddNew(calStack, newNum));
+      setTypeStack(addNew(typeStack, el.type));
       makeTempResult(newNum);
+    } else if (currentType === "equal") {
+      softResetCalc(el);
     } else {
       setCalStack(addNew(calStack, el.command));
+      setTypeStack(addNew(typeStack, el.type));
       makeTempResult(el.command);
     }
-    setTypeStack(typeStack.concat(el.type));
   };
 
   const addOperator = (el: PadItemType) => {
@@ -81,30 +91,32 @@ function Calculator() {
       setCalStack(removeRecentAndAddNew(calStack, el.command));
     } else {
       setCalStack(addNew(calStack, el.command));
-      setTypeStack(addNew(typeStack, el.type));
+      isClosedBracket && makeTempResult();
     }
-    isClosedBracket && makeTempResult();
+    setTypeStack(addNew(typeStack, el.type));
   };
 
   const deleteCommand = () => {
     const currentType = getCurrent(typeStack);
+    if (currentType === "equal") {
+      resetCalc();
+      return;
+    }
+
     if (currentType === "number") {
       const newNum = getCurrent(calStack).slice(0, -1);
-      if (newNum.length === 0) {
-        setCalStack(removeRecent(calStack));
-        makeTempResult(" ");
-      } else {
-        setCalStack(removeRecentAndAddNew(calStack, newNum));
-        makeTempResult(newNum);
-      }
+      setCalStack(
+        newNum.length === 0 ? removeRecent(calStack) : removeRecentAndAddNew(calStack, newNum)
+      );
     } else {
       setCalStack(removeRecent(calStack));
     }
 
     if (currentType === "number" || currentType === "operator") {
-      setTempResult(tempResult.slice(0, -1));
+      setTempResult(removeRecent(tempResult));
     }
-    setTypeStack(typeStack.slice(0, -1));
+
+    setTypeStack(removeRecent(typeStack));
   };
 
   const addBracket = (el: PadItemType) => {
@@ -117,7 +129,8 @@ function Calculator() {
     const currentNum = getCurrent(calStack);
     if (!Number(currentNum)) return;
     const changeNum = +currentNum > 0 ? -+currentNum : Math.abs(+currentNum);
-    setCalStack(calStack.slice(0, -1).concat(`${changeNum}`));
+    setCalStack(removeRecentAndAddNew(calStack, `${changeNum}`));
+    setTempResult(removeRecentAndAddNew(tempResult, `${changeNum}`));
   };
 
   const checkNumberOverflow = () => {
@@ -127,11 +140,7 @@ function Calculator() {
   };
 
   const makeTempResult = (result?: string) => {
-    if (result) {
-      setTempResult(addNew(tempResult, result));
-    } else {
-      setTempResult(addNew(tempResult, calculator(calStack)));
-    }
+    setTempResult(addNew(tempResult, result || calculator(calStack)));
   };
 
   const equal = (el: PadItemType) => {
@@ -171,12 +180,6 @@ function Calculator() {
     if (!localStorage.getItem("calhistory")) {
       localStorage.setItem("calhistory", JSON.stringify([]));
     }
-  }, []);
-
-  useEffect(() => {
-    document.body.addEventListener("keyup", (e) => {
-      console.log(e);
-    });
   }, []);
 
   useEffect(() => {

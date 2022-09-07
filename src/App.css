@@ -48,7 +48,7 @@
 .calc__result {
   height: 50px;
   text-align: end;
-  font-size: 40px;
+  font-size: 36px;
   color: var(--body-font-color);
 }
 
