@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 
-import { pad, PadItemType } from "../pad";
-import { calculator } from "../calculate";
+import { pad, PadItemType } from "../libs/pad";
+import { calculator } from "../libs/calculate";
 
 function Calculator() {
   const [calStack, setCalStack] = useState<string[]>([]);
