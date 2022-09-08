@@ -1,7 +1,7 @@
-type PadItemType = {
+export interface PadItemType {
   command: string;
   type: string;
-};
+}
 
 export const pad: PadItemType[] = [
   { command: "C", type: "reset" },
@@ -22,6 +22,6 @@ export const pad: PadItemType[] = [
   { command: "+", type: "operator" },
   { command: "+/-", type: "changer" },
   { command: "0", type: "number" },
-  { command: ".", type: "number" },
+  { command: ".", type: "dot" },
   { command: "=", type: "equal" },
 ];
