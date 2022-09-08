@@ -246,12 +246,6 @@ function Calculator() {
   };
 
   useEffect(() => {
-    if (!localStorage.getItem("calhistory")) {
-      localStorage.setItem("calhistory", JSON.stringify([]));
-    }
-  }, []);
-
-  useEffect(() => {
     changeFontSize();
   }, [exDisplay.current?.offsetWidth]);
 

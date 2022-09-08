@@ -10,7 +10,7 @@ interface HistoryType {
 }
 
 function History({ isHistoryOn }: PropsType) {
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<HistoryType[]>([]);
 
   const resetHistory = () => {
     localStorage.setItem("calhistory", JSON.stringify([]));
@@ -18,7 +18,14 @@ function History({ isHistoryOn }: PropsType) {
   };
 
   useEffect(() => {
-    setHistory(JSON.parse(localStorage.getItem("calhistory")!));
+    if (!localStorage.getItem("calhistory")) {
+      localStorage.setItem("calhistory", JSON.stringify([]));
+    }
+  }, []);
+
+  useEffect(() => {
+    const calhistory = localStorage.getItem("calhistory");
+    calhistory && setHistory(JSON.parse(calhistory));
   }, [isHistoryOn]);
 
   return (
