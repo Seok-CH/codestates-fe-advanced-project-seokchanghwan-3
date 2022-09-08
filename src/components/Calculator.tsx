@@ -3,11 +3,17 @@ import { useEffect, useState, useRef } from "react";
 import { pad, PadItemType } from "../libs/pad";
 import { calculator } from "../libs/calculate";
 
+interface CalcStackItemType {
+  result: string;
+  type: string;
+  command: null | string;
+}
+
 function Calculator() {
-  const [calStack, setCalStack] = useState<string[]>([]);
-  const [typeStack, setTypeStack] = useState<string[]>([]);
-  const [tempResult, setTempResult] = useState<string[]>(["0"]);
-  const [isClosedBracket, setIsClosedBracket] = useState(true);
+  const [expression, setExpression] = useState("0");
+  const [calcStack, setCalcStack] = useState<CalcStackItemType[]>([
+    { result: "0", type: "init", command: null },
+  ]);
   const exDisplay = useRef() as React.MutableRefObject<HTMLElement>;
 
   const operateCalc = (el: PadItemType) => {
@@ -16,7 +22,7 @@ function Calculator() {
         resetCalc();
         break;
       case "undo":
-        deleteCommand();
+        undoCommand();
         break;
       case "bracket":
         addBracket(el);
@@ -27,138 +33,201 @@ function Calculator() {
       case "number":
         addNumber(el);
         break;
+      case "dot":
+        addDot(el);
+        break;
       case "changer":
         changePlusMinus();
         break;
       case "equal":
-        equal(el);
+        makeResult(el);
         break;
       default:
     }
   };
 
-  const getCurrent = (stack: string[]) => {
-    return stack[stack.length - 1];
+  const getRecentCalcStack = () => {
+    return calcStack[calcStack.length - 1];
   };
 
-  const removeRecent = (stack: string[]) => {
-    return stack.slice(0, -1);
+  const addCalcStack = (add: CalcStackItemType) => {
+    setCalcStack(calcStack.concat(add));
   };
 
-  const addNew = (stack: string[], add: string) => {
-    return stack.concat(add);
+  const removeRecentCalcStack = () => {
+    setCalcStack(calcStack.slice(0, -1));
   };
 
-  const removeRecentAndAddNew = (stack: string[], add: string) => {
-    return stack.slice(0, -1).concat(add);
+  const changeRecentCalcStack = (add: CalcStackItemType) => {
+    setCalcStack(calcStack.slice(0, -1).concat(add));
   };
 
   const resetCalc = () => {
-    setCalStack([]);
-    setTypeStack([]);
-    setIsClosedBracket(true);
-    setTempResult(["0"]);
-  };
-
-  const softResetCalc = (el: PadItemType) => {
-    setCalStack([el.command]);
-    setTypeStack([el.type]);
-    setIsClosedBracket(true);
-    setTempResult([el.command]);
+    setExpression("0");
+    setCalcStack([{ result: "0", type: "init", command: null }]);
   };
 
   const addNumber = (el: PadItemType) => {
     if (checkNumberOverflow()) return;
+    const { type: recentType, result: recentNum } = getRecentCalcStack();
 
-    const currentType = getCurrent(typeStack);
-    if (currentType === "number") {
-      const newNum = getCurrent(calStack) + el.command;
-      setCalStack(removeRecentAndAddNew(calStack, newNum));
-      setTypeStack(addNew(typeStack, el.type));
-      makeTempResult(newNum);
-    } else if (currentType === "equal") {
-      softResetCalc(el);
-    } else {
-      setCalStack(addNew(calStack, el.command));
-      setTypeStack(addNew(typeStack, el.type));
-      makeTempResult(el.command);
+    switch (recentType) {
+      case "number":
+      case "dot":
+        setExpression(expression + el.command);
+        addCalcStack({ result: recentNum + el.command, ...el });
+        break;
+      case "operator":
+      case "bracket":
+        setExpression(expression + " " + el.command);
+        addCalcStack({ result: el.command, ...el });
+        break;
+      default:
+        setExpression(el.command);
+        addCalcStack({ result: el.command, ...el });
+    }
+  };
+
+  const addDot = (el: PadItemType) => {
+    if (checkDoubleDot()) return;
+    const { type: recentType, result: recentNum } = getRecentCalcStack();
+    switch (recentType) {
+      case "number":
+        setExpression(expression + el.command);
+        addCalcStack({ result: recentNum + el.command, ...el });
+        break;
+      case "operator":
+      case "bracket":
+        setExpression(expression + " 0" + el.command);
+        addCalcStack({ result: "0" + el.command, ...el });
+        break;
+      default:
+        setExpression(expression + el.command);
+        addCalcStack({ result: expression + el.command, ...el });
     }
   };
 
   const addOperator = (el: PadItemType) => {
-    const currentType = getCurrent(typeStack);
-    if (currentType === "operator") {
-      setCalStack(removeRecentAndAddNew(calStack, el.command));
-    } else {
-      setCalStack(addNew(calStack, el.command));
-      isClosedBracket && makeTempResult();
+    const { type: recentType } = getRecentCalcStack();
+    switch (recentType) {
+      case "operator":
+        setExpression(expression.slice(0, -2) + " " + el.command);
+        changeRecentCalcStack({ result: equal(true), ...el });
+        break;
+      case "bracket":
+        checkClosedBracket()
+          ? setExpression(expression + " " + el.command)
+          : setExpression(expression + " 0 " + el.command);
+        addCalcStack({
+          result: checkClosedBracket() ? equal() : equal(true),
+          ...el,
+        });
+        break;
+      default:
+        setExpression(expression + " " + el.command);
+        addCalcStack({
+          result: checkClosedBracket() ? equal() : equal(true),
+          ...el,
+        });
     }
-    setTypeStack(addNew(typeStack, el.type));
   };
 
-  const deleteCommand = () => {
-    const currentType = getCurrent(typeStack);
-    if (currentType === "equal") {
-      resetCalc();
-      return;
-    }
+  const undoCommand = () => {
+    const { type: recentType, result: recentNum } = getRecentCalcStack();
 
-    if (currentType === "number") {
-      const newNum = getCurrent(calStack).slice(0, -1);
-      setCalStack(
-        newNum.length === 0 ? removeRecent(calStack) : removeRecentAndAddNew(calStack, newNum)
-      );
-    } else {
-      setCalStack(removeRecent(calStack));
+    switch (recentType) {
+      case "operator":
+        setExpression(expression.trim().slice(0, -2));
+        removeRecentCalcStack();
+        break;
+      case "number":
+      case "dot":
+        expression.slice(0, -1).length === 0
+          ? setExpression("0")
+          : recentNum.slice(0, -1) === "-"
+          ? setExpression(expression.slice(0, -2))
+          : setExpression(expression.slice(0, -1));
+        removeRecentCalcStack();
+        break;
+      case "bracket":
+        setExpression(expression.trim().slice(0, -2));
+        removeRecentCalcStack();
+        break;
+      case "equal":
+        resetCalc();
+        break;
+      default:
+        setExpression("0");
     }
-
-    if (currentType === "number" || currentType === "operator") {
-      setTempResult(removeRecent(tempResult));
-    }
-
-    setTypeStack(removeRecent(typeStack));
   };
 
   const addBracket = (el: PadItemType) => {
-    setIsClosedBracket(!isClosedBracket);
-    setCalStack(addNew(calStack, isClosedBracket ? "(" : ")"));
-    setTypeStack(addNew(typeStack, el.type));
+    const bracket = checkClosedBracket() ? " (" : " )";
+    setExpression(expression + bracket);
+    addCalcStack({ result: equal(true), ...el });
+  };
+
+  const checkClosedBracket = () => {
+    let openBracket = 0;
+    let closeBracket = 0;
+    for (const char of expression) {
+      if (char === "(") openBracket++;
+      if (char === ")") closeBracket++;
+    }
+    return !(openBracket - closeBracket);
   };
 
   const changePlusMinus = () => {
-    const currentNum = getCurrent(calStack);
-    if (!Number(currentNum)) return;
-    const changeNum = +currentNum > 0 ? -+currentNum : Math.abs(+currentNum);
-    setCalStack(removeRecentAndAddNew(calStack, `${changeNum}`));
-    setTempResult(removeRecentAndAddNew(tempResult, `${changeNum}`));
+    const { type: recentType } = getRecentCalcStack();
+    if (recentType === "number") {
+      const recentNum = getRecentCalcStack().result;
+      const changeNum = +recentNum > 0 ? -+recentNum : Math.abs(+recentNum);
+      setExpression(expression.split(" ").slice(0, -1).concat(`${changeNum}`).join(" "));
+    }
+
+    const calcStackCopy = [...calcStack];
+    for (const el of calcStackCopy.reverse()) {
+      if (el.type !== "number") break;
+      else {
+        el.result = +el.result > 0 ? String(-+el.result) : String(Math.abs(+el.result));
+      }
+    }
+    setCalcStack(calcStackCopy.reverse());
   };
 
   const checkNumberOverflow = () => {
-    const currentNum = getCurrent(calStack);
-    if (currentNum && currentNum.length >= 12) return true;
+    const recentNum = getRecentCalcStack().result;
+    const changeNum = +recentNum > 0 ? -+recentNum : Math.abs(+recentNum);
+    if (`${Math.abs(changeNum)}`.length >= 12) return true;
     else return false;
   };
 
-  const makeTempResult = (result?: string) => {
-    setTempResult(addNew(tempResult, result || calculator(calStack)));
+  const checkDoubleDot = () => {
+    const recentNum = getRecentCalcStack().result;
+    for (const char of recentNum) {
+      if (char === ".") return true;
+    }
+    return false;
   };
 
-  const equal = (el: PadItemType) => {
-    setTypeStack(addNew(typeStack, el.type));
-    makeTempResult();
-    const result = calculator(calStack);
+  const equal = (duplicate?: boolean) => {
+    if (duplicate) return getRecentCalcStack().result;
+    else return calculator(expression.split(" "));
+  };
+
+  const makeResult = (el: PadItemType) => {
+    const result = equal();
+    setHistory(formatExpression(expression + " = "), result);
+    addCalcStack({ result, ...el });
+  };
+
+  const setHistory = (expression: string, result: string) => {
     const parsed = JSON.parse(localStorage.getItem("calhistory")!);
-    localStorage.setItem(
-      "calhistory",
-      JSON.stringify([
-        { expression: formatExpression(calStack.join("") + " = "), result },
-        ...parsed,
-      ])
-    );
+    localStorage.setItem("calhistory", JSON.stringify([{ expression, result }, ...parsed]));
   };
 
   const formatExpression = (raw: string) => {
-    return raw.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    return raw.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",").trim();
   };
 
   const changeFontSize = () => {
@@ -189,10 +258,10 @@ function Calculator() {
   return (
     <main className="calc">
       <section className="calc__result">
-        <span>{formatExpression(`${getCurrent(tempResult)}`)}</span>
+        <span>{formatExpression(getRecentCalcStack().result)}</span>
       </section>
       <section className="calc__display">
-        <span ref={exDisplay}>{formatExpression(calStack.join(""))}</span>
+        <span ref={exDisplay}>{formatExpression(expression)}</span>
       </section>
       <section className="calc__pad">
         {pad.map((el) => (
