@@ -2,7 +2,7 @@
 
 # 기업과제(아이헤이트플라잉버그스) - 계산기 웹앱
 
-- **배포링크** : [링크클릭](https://codestates-fe-advanced-project-seokchanghwan-3.vercel.app/)
+- **배포링크** : [링크](https://codestates-fe-advanced-project-seokchanghwan-3.vercel.app/) | [옆에 링크 오류시 다른 링크](https://codestates-fe-advanced-project-seokchanghwan-3-ahkj4tjrw.vercel.app/)
 - **사용스택** : `html`, `css`, `javascript`, `react`, `typescript`
 - **프로젝트 시작 방법** :
 
