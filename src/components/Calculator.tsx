@@ -68,7 +68,8 @@ function Calculator() {
   };
 
   const addNumber = (el: PadItemType) => {
-    if (checkNumberOverflow()) return;
+    if (checkNumberOverflow(el.command)) return;
+
     const { type: recentType, result: recentNum } = getRecentCalcStack();
 
     switch (recentType) {
@@ -195,10 +196,11 @@ function Calculator() {
     setCalcStack(calcStackCopy.reverse());
   };
 
-  const checkNumberOverflow = () => {
-    const recentNum = getRecentCalcStack().result;
-    const changeNum = +recentNum > 0 ? -+recentNum : Math.abs(+recentNum);
-    if (`${Math.abs(changeNum)}`.length >= 12) return true;
+  const checkNumberOverflow = (num: string) => {
+    const addedExpression = expression + num;
+    const recentNum = addedExpression.match(/[0-9.]+$/)!;
+
+    if (recentNum[0].length >= 13) return true;
     else return false;
   };
 
